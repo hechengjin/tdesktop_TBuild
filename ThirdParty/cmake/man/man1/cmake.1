@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CMAKE" "1" "Jun 04, 2019" "3.15.0" "CMake"
+.TH "CMAKE" "1" "Apr 10, 2020" "3.16.6" "CMake"
 .SH NAME
 cmake \- CMake Command-Line Reference
 .
@@ -239,6 +239,9 @@ CMake listfiles.  The loaded entries take priority over the
 project’s default values.  The given file should be a CMake script
 containing \fBset()\fP commands that use the \fBCACHE\fP option, not a
 cache\-format file.
+.sp
+References to \fBCMAKE_SOURCE_DIR\fP and \fBCMAKE_BINARY_DIR\fP
+within the script evaluate to the top\-level source and build tree.
 .TP
 .B \fB\-D <var>:<type>=<value>, \-D <var>=<value>\fP
 Create or update a CMake \fBCACHE\fP entry.
@@ -375,11 +378,14 @@ Dump a wide range of information about the current system.  If run
 from the top of a binary tree for a CMake project it will dump
 additional information such as the cache, log files etc.
 .TP
-.B \fB\-\-loglevel=<error|warning|notice|status|verbose|debug|trace>\fP
+.B \fB\-\-log\-level=<ERROR|WARNING|NOTICE|STATUS|VERBOSE|DEBUG|TRACE>\fP
 Set the log level.
 .sp
 The \fBmessage()\fP command will only output messages of the specified
-log level or higher.  The default log level is \fBstatus\fP\&.
+log level or higher.  The default log level is \fBSTATUS\fP\&.
+.sp
+For backward compatibility reasons, \fB\-\-loglevel\fP is also accepted as a
+synonym for this option.
 .TP
 .B \fB\-\-debug\-trycompile\fP
 Do not delete the \fBtry_compile()\fP build tree.
@@ -412,6 +418,9 @@ Like \fB\-\-trace\fP, but with variables expanded.
 Put cmake in trace mode, but output only lines of a specified file.
 .sp
 Multiple options are allowed.
+.TP
+.B \fB\-\-trace\-redirect=<file>\fP
+Put cmake in trace mode and redirect trace output to a file instead of stderr.
 .TP
 .B \fB\-\-warn\-uninitialized\fP
 Warn about uninitialized values.
@@ -469,7 +478,8 @@ Some native build tools always build in parallel.  The use of \fB<jobs>\fP
 value of \fB1\fP can be used to limit to a single job.
 .TP
 .B \fB\-\-target <tgt>..., \-t <tgt>...\fP
-Build \fB<tgt>\fP instead of default targets.  May be specified multiple times.
+Build \fB<tgt>\fP instead of the default target.  Multiple targets may be
+given, separated by spaces.
 .TP
 .B \fB\-\-config <cfg>\fP
 For multi\-configuration tools, choose configuration \fB<cfg>\fP\&.
@@ -517,16 +527,16 @@ The options are:
 Project binary directory to install. This is required and must be first.
 .TP
 .B \fB\-\-config <cfg>\fP
-For multi\-configuration tools, choose configuration \fB<cfg>\fP\&.
+For multi\-configuration generators, choose configuration \fB<cfg>\fP\&.
 .TP
 .B \fB\-\-component <comp>\fP
 Component\-based install. Only install component \fB<comp>\fP\&.
 .TP
 .B \fB\-\-prefix <prefix>\fP
-The installation prefix \fBCMAKE_INSTALL_PREFIX\fP\&.
+Override the installation prefix, \fBCMAKE_INSTALL_PREFIX\fP\&.
 .TP
 .B \fB\-\-strip\fP
-Strip before installing by setting \fBCMAKE_INSTALL_DO_STRIP\fP\&.
+Strip before installing.
 .TP
 .B \fB\-v, \-\-verbose\fP
 Enable verbose output.
@@ -630,6 +640,26 @@ A list of strings with all the extra generators compatible with
 the generator.
 .UNINDENT
 .TP
+.B \fBfileApi\fP
+Optional member that is present when the \fBcmake\-file\-api(7)\fP
+is available.  The value is a JSON object with one member:
+.INDENT 7.0
+.TP
+.B \fBrequests\fP
+A JSON array containing zero or more supported file\-api requests.
+Each request is a JSON object with members:
+.INDENT 7.0
+.TP
+.B \fBkind\fP
+Specifies one of the supported file\-api object kinds\&.
+.TP
+.B \fBversion\fP
+A JSON array whose elements are each a JSON object containing
+\fBmajor\fP and \fBminor\fP members specifying non\-negative integer
+version components.
+.UNINDENT
+.UNINDENT
+.TP
 .B \fBserverMode\fP
 \fBtrue\fP if cmake supports server\-mode and \fBfalse\fP otherwise.
 .UNINDENT
@@ -650,7 +680,7 @@ directory and it must exist. Wildcards are not supported.
 but the files or directories it point to.
 .TP
 .B \fBcopy_directory <dir>... <destination>\fP
-Copy directories to \fB<destination>\fP directory.
+Copy content of \fB<dir>...\fP directories to \fB<destination>\fP directory.
 If \fB<destination>\fP directory does not exist it will be created.
 \fBcopy_directory\fP does follow symlinks.
 .TP
@@ -660,6 +690,16 @@ they have changed.
 If multiple files are specified, the \fB<destination>\fP must be
 directory and it must exist.
 \fBcopy_if_different\fP does follow symlinks.
+.TP
+.B \fBcreate_symlink <old> <new>\fP
+Create a symbolic link \fB<new>\fP naming \fB<old>\fP\&.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Path to where \fB<new>\fP symbolic link will be created has to exist beforehand.
+.UNINDENT
+.UNINDENT
 .TP
 .B \fBecho [<string>...]\fP
 Displays arguments as text.
@@ -672,6 +712,9 @@ Run command in a modified environment.
 .TP
 .B \fBenvironment\fP
 Display the current environment variables.
+.TP
+.B \fBfalse\fP
+Do nothing, with an exit code of 1.
 .TP
 .B \fBmake_directory <dir>...\fP
 Create \fB<dir>\fP directories.  If necessary, create parent
@@ -772,7 +815,8 @@ and not files it point to.
 .TP
 .B \fBremove_directory <dir>...\fP
 Remove \fB<dir>\fP directories and their contents.  If a directory does
-not exist it will be silently ignored.
+not exist it will be silently ignored.  If \fB<dir>\fP is a symlink to
+a directory, just the symlink will be removed.
 .TP
 .B \fBrename <oldname> <newname>\fP
 Rename a file or directory (on one volume). If file with the \fB<newname>\fP name
@@ -849,15 +893,8 @@ If \fB<file>\fP exists, it is changing \fB<file>\fP access and modification time
 Touch a file if it exists but do not create it.  If a file does
 not exist it will be silently ignored.
 .TP
-.B \fBcreate_symlink <old> <new>\fP
-Create a symbolic link \fB<new>\fP naming \fB<old>\fP\&.
-.UNINDENT
-.sp
-\fBNOTE:\fP
-.INDENT 0.0
-.INDENT 3.5
-Path to where \fB<new>\fP symbolic link will be created has to exist beforehand.
-.UNINDENT
+.B \fBtrue\fP
+Do nothing, with an exit code of 0.
 .UNINDENT
 .SS Windows\-specific Command\-Line Tools
 .sp
@@ -1072,14 +1109,10 @@ The primary starting point for learning about CMake.
 Links to available documentation and community resources may be
 found on this web page.
 .TP
-.B Mailing List
-\fI\%https://cmake.org/mailing\-lists\fP
+.B Discourse Forum
+\fI\%https://discourse.cmake.org\fP
 .sp
-For help and discussion about using CMake, a mailing list is
-provided at \fI\%cmake@cmake.org\fP\&.  The list is member\-post\-only but one
-may sign up on the CMake web page.  Please first read the full
-documentation at \fI\%https://cmake.org\fP before posting questions to
-the list.
+The Discourse Forum hosts discussion and questions about CMake.
 .UNINDENT
 .SH COPYRIGHT
 2000-2019 Kitware, Inc. and Contributors

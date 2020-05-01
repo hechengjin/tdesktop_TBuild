@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CPACK-GENERATORS" "7" "Jun 04, 2019" "3.15.0" "CMake"
+.TH "CPACK-GENERATORS" "7" "Apr 10, 2020" "3.16.6" "CMake"
 .SH NAME
 cpack-generators \- CPack Generator Reference
 .
@@ -48,6 +48,8 @@ TGZ (.tar.gz)
 TXZ (.tar.xz)
 .IP \(bu 2
 TZ (.tar.Z)
+.IP \(bu 2
+TZST (.tar.zst)
 .IP \(bu 2
 ZIP (.zip)
 .UNINDENT
@@ -328,7 +330,7 @@ Default   : \fBCPACK_PACKAGE_VERSION\fP
 .UNINDENT
 .sp
 This variable may contain only alphanumerics (A\-Za\-z0\-9) and the characters
-. + \- ~ (full stop, plus, hyphen, tilde) and should start with a digit. If
+\&. + \- ~ (full stop, plus, hyphen, tilde) and should start with a digit. If
 \fI\%CPACK_DEBIAN_PACKAGE_RELEASE\fP is not set then hyphens are not
 allowed.
 .sp
@@ -447,7 +449,7 @@ Default   : \fBCPACK_PACKAGE_CONTACT\fP
 .TP
 .B CPACK_DEBIAN_PACKAGE_DESCRIPTION
 .TP
-.B CPACK_COMPONENT_<COMPONENT>_DESCRIPTION
+.B CPACK_DEBIAN_<COMPONENT>_DESCRIPTION
 The Debian package description
 .INDENT 7.0
 .IP \(bu 2
@@ -456,11 +458,19 @@ Mandatory : YES
 Default   :
 .INDENT 2.0
 .IP \(bu 2
-\fI\%CPACK_DEBIAN_PACKAGE_DESCRIPTION\fP if set or
+\fI\%CPACK_DEBIAN_<COMPONENT>_DESCRIPTION\fP (component
+based installers only) if set, or \fI\%CPACK_DEBIAN_PACKAGE_DESCRIPTION\fP if set, or
 .IP \(bu 2
-\fBCPACK_PACKAGE_DESCRIPTION_SUMMARY\fP
+\fBCPACK_COMPONENT_<compName>_DESCRIPTION\fP (component
+based installers only) if set, or \fBCPACK_PACKAGE_DESCRIPTION\fP if set, or
+.IP \(bu 2
+content of the file specified in \fBCPACK_PACKAGE_DESCRIPTION_FILE\fP if set
 .UNINDENT
 .UNINDENT
+.sp
+If after that description is not set, \fBCPACK_PACKAGE_DESCRIPTION_SUMMARY\fP going to be
+used if set. Otherwise, \fBCPACK_PACKAGE_DESCRIPTION_SUMMARY\fP will be added as the first
+line of description as defined in \fI\%Debian Policy Manual\fP\&.
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -4072,6 +4082,10 @@ This image must be 493 by 312 pixels.
 Start menu folder name for launcher.
 .sp
 If this variable is not set, it will be initialized with CPACK_PACKAGE_NAME
+.sp
+If this variable is set to \fB\&.\fP, then application shortcuts will be
+created directly in the start menu and the uninstaller shortcut will be
+omitted.
 .UNINDENT
 .INDENT 0.0
 .TP

@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CMAKE-TOOLCHAINS" "7" "Jun 04, 2019" "3.15.0" "CMake"
+.TH "CMAKE-TOOLCHAINS" "7" "Apr 10, 2020" "3.16.6" "CMake"
 .SH NAME
 cmake-toolchains \- CMake Toolchains Reference
 .
@@ -130,6 +130,14 @@ If \fBcmake(1)\fP is invoked with the command line parameter
 values for the compilers.
 The \fBCMAKE_CROSSCOMPILING\fP variable is set to true when CMake is
 cross\-compiling.
+.sp
+Note that using the \fBCMAKE_SOURCE_DIR\fP or \fBCMAKE_BINARY_DIR\fP
+variables inside a toolchain file is typically undesirable.  The toolchain
+file is used in contexts where these variables have different values when used
+in different places (e.g. as part of a call to \fBtry_compile()\fP).  In most
+cases, where there is a need to evaluate paths inside a toolchain file, the more
+appropriate variable to use would be \fBCMAKE_CURRENT_LIST_DIR\fP, since
+it always has an unambiguous, predictable value.
 .SS Cross Compiling for Linux
 .sp
 A typical cross\-compiling toolchain for Linux has content such
@@ -446,8 +454,10 @@ instead of the unified headers.  If not specified, the default will
 be false unless using a NDK that does not provide unified headers.
 .TP
 .B \fBCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION\fP
-Set to the version of the NDK toolchain to be selected as the compiler.
-If not specified, the default will be the latest available GCC toolchain.
+On NDK r19 or above, this variable must be unset or set to \fBclang\fP\&.
+On NDK r18 or below, set this to the version of the NDK toolchain to
+be selected as the compiler.  If not specified, the default will be
+the latest available GCC toolchain.
 .TP
 .B \fBCMAKE_ANDROID_STL_TYPE\fP
 Set to specify which C++ standard library to use.  If not specified,

@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CMAKE-GENERATORS" "7" "Jun 04, 2019" "3.15.0" "CMake"
+.TH "CMAKE-GENERATORS" "7" "Apr 10, 2020" "3.16.6" "CMake"
 .SH NAME
 cmake-generators \- CMake Generators Reference
 .
@@ -88,9 +88,34 @@ Generates JOM makefiles.
 .sp
 Generates standard UNIX makefiles.
 .sp
-A hierarchy of UNIX makefiles is generated into the build tree.  Any
-standard UNIX\-style make program can build the project through the
-default \fBall\fP target.  An \fBinstall\fP target is also provided.
+A hierarchy of UNIX makefiles is generated into the build tree.  Use
+any standard UNIX\-style make program to build the project through
+the \fBall\fP target and install the project through the \fBinstall\fP
+(or \fBinstall/strip\fP) target.
+.sp
+For each subdirectory \fBsub/dir\fP of the project a UNIX makefile will
+be created, containing the following targets:
+.INDENT 0.0
+.TP
+.B \fBall\fP
+Depends on all targets required by the subdirectory.
+.TP
+.B \fBinstall\fP
+Runs the install step in the subdirectory, if any.
+.TP
+.B \fBinstall/strip\fP
+Runs the install step in the subdirectory followed by a \fBCMAKE_STRIP\fP command,
+if any.
+.sp
+The \fBCMAKE_STRIP\fP variable will contain the platform’s \fBstrip\fP utility, which
+removes symbols information from generated binaries.
+.TP
+.B \fBtest\fP
+Runs the test step in the subdirectory, if any.
+.TP
+.B \fBpackage\fP
+Runs the package step in the subdirectory, if any.
+.UNINDENT
 .SS Watcom WMake
 .sp
 Generates Watcom WMake makefiles.
@@ -99,9 +124,9 @@ Generates Watcom WMake makefiles.
 .sp
 Generates build.ninja files.
 .sp
-A build.ninja file is generated into the build tree.  Recent versions
-of the ninja program can build the project through the \fBall\fP target.
-An \fBinstall\fP target is also provided.
+A \fBbuild.ninja\fP file is generated into the build tree.  Use the ninja
+program to build the project through the \fBall\fP target and install the
+project through the \fBinstall\fP (or \fBinstall/strip\fP) target.
 .sp
 For each subdirectory \fBsub/dir\fP of the project, additional targets
 are generated:
@@ -112,6 +137,13 @@ Depends on all targets required by the subdirectory.
 .TP
 .B \fBsub/dir/install\fP
 Runs the install step in the subdirectory, if any.
+.TP
+.B \fBsub/dir/install/strip\fP
+Runs the install step in the subdirectory followed by a \fBCMAKE_STRIP\fP command,
+if any.
+.sp
+The \fBCMAKE_STRIP\fP variable will contain the platform’s \fBstrip\fP utility, which
+removes symbols information from generated binaries.
 .TP
 .B \fBsub/dir/test\fP
 Runs the test step in the subdirectory, if any.
@@ -578,7 +610,7 @@ The following properties are available:
 \fBNOTE:\fP
 .INDENT 0.0
 .INDENT 3.5
-This generator is deemed experimental as of CMake 3.15.0\-rc1
+This generator is deemed experimental as of CMake 3.16.6
 and is still a work in progress.  Future versions of CMake
 may make breaking changes as the generator matures.
 .UNINDENT

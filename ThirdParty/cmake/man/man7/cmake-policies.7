@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CMAKE-POLICIES" "7" "Jun 04, 2019" "3.15.0" "CMake"
+.TH "CMAKE-POLICIES" "7" "Apr 10, 2020" "3.16.6" "CMake"
 .SH NAME
 cmake-policies \- CMake Policies Reference
 .
@@ -78,6 +78,96 @@ an optional \fBNO_POLICY_SCOPE\fP keyword to control this behavior.
 The \fBCMAKE_MINIMUM_REQUIRED_VERSION\fP variable may also be used
 to determine whether to report an error on use of deprecated macros or
 functions.
+.SH POLICIES INTRODUCED BY CMAKE 3.16
+.SS CMP0097
+.sp
+\fBExternalProject_Add()\fP with \fBGIT_SUBMODULES ""\fP initializes no
+submodules.
+.sp
+The module provides a \fBGIT_SUBMODULES\fP option which controls what submodules
+to initialize and update. Starting with CMake 3.16, explicitly setting
+\fBGIT_SUBMODULES\fP to an empty string means no submodules will be initialized
+or updated.
+.sp
+This policy provides compatibility for projects that have not been updated
+to expect the new behavior.
+.sp
+The \fBOLD\fP behavior for this policy is for \fBGIT_SUBMODULES\fP when set to
+an empty string to initialize and update all git submodules.
+The \fBNEW\fP behavior for this policy is for \fBGIT_SUBMODULES\fP when set to
+an empty string to initialize and update no git submodules.
+.sp
+This policy was introduced in CMake version 3.16.  Use the
+\fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
+Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
+when this policy is not set and simply uses \fBOLD\fP behavior.
+.SS CMP0096
+.sp
+The \fBproject()\fP command preserves leading zeros in version components.
+.sp
+When a \fBVERSION <major>[.<minor>[.<patch>[.<tweak>]]]]\fP argument is given
+to the \fBproject()\fP command, it stores the version string in the
+\fBPROJECT_VERSION\fP variable and stores individual integer version components
+in \fBPROJECT_VERSION_{MAJOR,MINOR,PATCH,TWEAK}\fP variables (see policy
+\fBCMP0048\fP).  CMake 3.15 and below dropped leading zeros from each
+component.  CMake 3.16 and higher prefer to preserve leading zeros.  This
+policy provides compatibility for projects that have not been updated to
+expect the new behavior.
+.sp
+The \fBOLD\fP behavior of this policy drops leading zeros in all components,
+e.g.  such that version \fB1.07.06\fP becomes \fB1.7.6\fP\&.  The \fBNEW\fP behavior
+of this policy preserves the leading zeros in all components, such that
+version \fB1.07.06\fP remains unchanged.
+.sp
+This policy was introduced in CMake version 3.16.  Unlike many policies, CMake
+version 3.16.6 does \fInot\fP warn when this policy is not set and simply uses
+the \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to
+\fBOLD\fP or \fBNEW\fP explicitly.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fBOLD\fP behavior of a policy is
+\fBdeprecated by definition\fP
+and may be removed in a future version of CMake.
+.UNINDENT
+.UNINDENT
+.SS CMP0095
+.sp
+\fBRPATH\fP entries are properly escaped in the intermediary CMake install script.
+.sp
+In CMake 3.15 and earlier, \fBRPATH\fP entries set via
+\fBCMAKE_INSTALL_RPATH\fP or via \fBINSTALL_RPATH\fP have not been
+escaped before being inserted into the \fBcmake_install.cmake\fP script. Dynamic
+linkers on ELF\-based systems (e.g. Linux and FreeBSD) allow certain keywords in
+\fBRPATH\fP entries, such as \fB${ORIGIN}\fP (More details are available in the
+\fBld.so\fP man pages on those systems). The syntax of these keywords can match
+CMake’s variable syntax. In order to not be substituted (usually to an empty
+string) already by the intermediary \fBcmake_install.cmake\fP script, the user had
+to double\-escape such \fBRPATH\fP keywords, e.g.
+\fBset(CMAKE_INSTALL_RPATH "\e\e\e${ORIGIN}/../lib")\fP\&. Since the intermediary
+\fBcmake_install.cmake\fP script is an implementation detail of CMake, CMake 3.16
+and later will make sure \fBRPATH\fP entries are inserted literally by escaping
+any coincidental CMake syntax.
+.sp
+The \fBOLD\fP behavior of this policy is to not escape \fBRPATH\fP entries in the
+intermediary \fBcmake_install.cmake\fP script. The \fBNEW\fP behavior is to properly
+escape coincidental CMake syntax in \fBRPATH\fP entries when generating the
+intermediary \fBcmake_install.cmake\fP script.
+.sp
+This policy was introduced in CMake version 3.16. CMake version 3.16.6 warns
+when the policy is not set and detected usage of CMake\-like syntax and uses
+\fBOLD\fP behavior. Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP
+or \fBNEW\fP explicitly.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fBOLD\fP behavior of a policy is
+\fBdeprecated by definition\fP
+and may be removed in a future version of CMake.
+.UNINDENT
+.UNINDENT
 .SH POLICIES INTRODUCED BY CMAKE 3.15
 .SS CMP0094
 .sp
@@ -96,7 +186,7 @@ The \fBOLD\fP behavior for this policy set value \fBVERSION\fP for variables
 .sp
 This policy was introduced in CMake version 3.15.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike many policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike many policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses the \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -126,7 +216,7 @@ policy is for \fBFindBoost\fP to report \fBBoost_VERSION\fP in
 .sp
 This policy was introduced in CMake version 3.15.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike many policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike many policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses the \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -173,7 +263,7 @@ entries.
 .sp
 This policy was introduced in CMake version 3.15.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike many policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike many policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -205,7 +295,9 @@ CMake 3.15 and above prefer to leave the MSVC runtime library selection flags
 out of the default \fBCMAKE_<LANG>_FLAGS_<CONFIG>\fP values and instead
 offer a first\-class abstraction.  The \fBCMAKE_MSVC_RUNTIME_LIBRARY\fP
 variable and \fBMSVC_RUNTIME_LIBRARY\fP target property may be set to
-select the MSVC runtime library.
+select the MSVC runtime library.  If they are not set then CMake uses the
+default value \fBMultiThreaded$<$<CONFIG:Debug>:Debug>DLL\fP which is
+equivalent to the original flags.
 .sp
 This policy provides compatibility with projects that have not been updated
 to be aware of the abstraction.  The policy setting takes effect as of the
@@ -229,7 +321,7 @@ library flags in the default cache entries and use the abstraction instead.
 .sp
 This policy was introduced in CMake version 3.15.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike many policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike many policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -262,7 +354,7 @@ unless the \fBCMAKE_EXPORT_PACKAGE_REGISTRY\fP is enabled.
 .sp
 This policy was introduced in CMake version 3.15.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike most policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -295,7 +387,7 @@ The \fBOLD\fP behavior for this policy is to use compiler id \fBXL\fP\&.  The
 .sp
 This policy was introduced in CMake version 3.15.  Use the
 \fBcmake_policy()\fP command to set this policy to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike most policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
 by default when this policy is not set and simply uses \fBOLD\fP behavior.
 See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0089\fP
@@ -334,7 +426,7 @@ to generate implicit files.
 .sp
 This policy was introduced in CMake version 3.14.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike most policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -368,7 +460,7 @@ their own directory scope (e.g. from files brought in via \fBinclude()\fP
 rather than \fBadd_subdirectory()\fP).
 .sp
 This policy was introduced in CMake version 3.14.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -394,7 +486,7 @@ The \fBNEW\fP behavior is to pass \fB\-module\fP option to \fBSWIG\fP compiler i
 \fBSWIG_MODULE_NAME\fP is specified.
 .sp
 This policy was introduced in CMake version 3.14.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -421,7 +513,7 @@ The \fBOLD\fP behavior of this policy is for \fB$<IN_LIST:...>\fP to always retu
 if the first argument is empty and the list contains an empty item.
 .sp
 This policy was introduced in CMake version 3.14.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -453,7 +545,7 @@ The \fBOLD\fP behavior of this policy is for \fBFindQt\fP to exist for
 exist for \fBfind_package()\fP\&.
 .sp
 This policy was introduced in CMake version 3.14.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -495,8 +587,17 @@ honored at link time.
 .sp
 This policy was introduced in CMake version 3.14. Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike most policies, CMake version 3.15.0\-rc1 does not warn when this policy is
+Unlike most policies, CMake version 3.16.6 does not warn when this policy is
 not set and simply uses \fBOLD\fP behavior.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Android platform has a special handling of \fBPIE\fP so it is not required
+to use the \fBCheckPIESupported\fP module to ensure flags are passed to
+the linker.
+.UNINDENT
+.UNINDENT
 .sp
 \fBNOTE:\fP
 .INDENT 0.0
@@ -567,7 +668,7 @@ behavior for this policy is to run all install rules in the order they are
 declared.
 .sp
 This policy was introduced in CMake version 3.14.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn by default when this policy
+CMake version 3.16.6 does \fInot\fP warn by default when this policy
 is not set and simply uses \fBOLD\fP behavior.  See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0082\fP
 variable to control the warning.
@@ -598,7 +699,7 @@ this policy is to issue a \fBFATAL_ERROR\fP if \fBLINK_DIRECTORIES\fP
 contains a relative path.
 .sp
 This policy was introduced in CMake version 3.13.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -628,7 +729,7 @@ be included at configure time. The \fBNEW\fP behavior of this policy is to
 disallow such inclusion.
 .sp
 This policy was introduced in CMake version 3.13.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -674,7 +775,7 @@ keyword only.  The \fBNEW\fP behavior of this policy is to allow all such
 calls but use the new scoping rules.
 .sp
 This policy was introduced in CMake version 3.13.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -707,7 +808,7 @@ This is the default if not specified.
 .UNINDENT
 .sp
 This policy was introduced in CMake version 3.13.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -770,7 +871,7 @@ The cache entry is not created or updated and is ignored if it exists.
 .UNINDENT
 .sp
 This policy was introduced in CMake version 3.13.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -805,7 +906,7 @@ all relative source file paths unmodified.  The \fBNEW\fP behavior of this
 policy is to convert relative paths to absolute according to above rules.
 .sp
 This policy was introduced in CMake version 3.13.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -842,7 +943,7 @@ in the include file check macros.  The \fBNEW\fP behavior of this policy is to
 honor \fBCMAKE_REQUIRED_LIBRARIES\fP in the include file check macros.
 .sp
 This policy was introduced in CMake version 3.12.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -862,16 +963,16 @@ In CMake 3.12 and above the \fBfind_package(<PackageName>)\fP command now
 searches prefixes specified by the \fB<PackageName>_ROOT\fP CMake
 variable and the \fB<PackageName>_ROOT\fP environment variable.
 Package roots are maintained as a stack so nested calls to all \fBfind_*\fP
-commands inside find modules also search the roots as prefixes.  This policy
-provides compatibility with projects that have not been updated to avoid using
-\fB<PackageName>_ROOT\fP variables for other purposes.
+commands inside find modules and config packages also search the roots as
+prefixes.  This policy provides compatibility with projects that have not been
+updated to avoid using \fB<PackageName>_ROOT\fP variables for other purposes.
 .sp
 The \fBOLD\fP behavior for this policy is to ignore \fB<PackageName>_ROOT\fP
 variables.  The \fBNEW\fP behavior for this policy is to use
 \fB<PackageName>_ROOT\fP variables.
 .sp
 This policy was introduced in CMake version 3.12.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -903,7 +1004,7 @@ entries.  The \fBNEW\fP behavior for this policy is to not set them.
 .sp
 This policy was introduced in CMake version 3.12.  Use the
 \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
-Unlike most policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
 when this policy is not set and simply uses \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -935,7 +1036,7 @@ The \fBOLD\fP behavior for this policy is to set \fBOpenGL_GL_PREFERENCE\fP to
 \fBOpenGL_GL_PREFERENCE\fP to \fBGLVND\fP\&.
 .sp
 This policy was introduced in CMake version 3.11.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -995,7 +1096,7 @@ set_property(SOURCE /path/to/file3.h PROPERTY SKIP_AUTOGEN ON)
 .UNINDENT
 .sp
 This policy was introduced in CMake version 3.10.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1026,7 +1127,7 @@ interpret relative paths with respect to the current source or binary
 directory of the caller.
 .sp
 This policy was introduced in CMake version 3.10.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1065,7 +1166,7 @@ The \fBNEW\fP behavior for this policy is to add IPO flags for the current
 compiler or produce an error if CMake does not know the flags.
 .sp
 This policy was introduced in CMake version 3.9.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1193,7 +1294,7 @@ The \fBOLD\fP behavior of this policy is to use the \fBRPATH\fP settings for
 the \fBRPATH\fP settings for \fBinstall_name\fP on macOS.
 .sp
 This policy was introduced in CMake version 3.9.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1246,7 +1347,7 @@ The \fBNEW\fP behavior of this policy is to honor language standard
 setting variables.
 .sp
 This policy was introduced in CMake version 3.8.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn by default when this policy
+CMake version 3.16.6 does \fInot\fP warn by default when this policy
 is not set and simply uses \fBOLD\fP behavior.  See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0067\fP
 variable to control the warning.
@@ -1280,7 +1381,7 @@ The \fBNEW\fP behavior of this policy is to honor config\-specific flag
 variabldes like \fBCMAKE_<LANG>_FLAGS_DEBUG\fP\&.
 .sp
 This policy was introduced in CMake version 3.7.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn by default when this policy
+CMake version 3.16.6 does \fInot\fP warn by default when this policy
 is not set and simply uses \fBOLD\fP behavior.  See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0066\fP
 variable to control the warning.
@@ -1314,7 +1415,7 @@ flags when linking executables if the \fBENABLE_EXPORTS\fP target
 property is set to \fBTrue\fP\&.
 .sp
 This policy was introduced in CMake version 3.4.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn by default when this policy
+CMake version 3.16.6 does \fInot\fP warn by default when this policy
 is not set and simply uses \fBOLD\fP behavior.  See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0065\fP
 variable to control the warning.
@@ -1338,7 +1439,7 @@ The \fBOLD\fP behavior for this policy is to ignore the \fBTEST\fP operator.
 The \fBNEW\fP behavior is to interpret the \fBTEST\fP operator.
 .sp
 This policy was introduced in CMake version 3.4.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1373,7 +1474,7 @@ The \fBNEW\fP behavior for this policy is to honor the visibility properties
 for all target types.
 .sp
 This policy was introduced in CMake version 3.3.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1408,7 +1509,7 @@ an \fBexport()\fP command.  The \fBNEW\fP behavior for this policy is
 not to allow installing the result of an \fBexport()\fP command.
 .sp
 This policy was introduced in CMake version 3.3.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -1441,7 +1542,7 @@ calls in CTest.  The \fBNEW\fP behavior for this policy is to not
 add \fB\-i\fP\&.
 .sp
 This policy was introduced in CMake version 3.3.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn when this policy is not set and
+CMake version 3.16.6 does \fInot\fP warn when this policy is not set and
 simply uses \fBOLD\fP behavior.
 .sp
 \fBNOTE:\fP
@@ -1510,7 +1611,7 @@ The \fBNEW\fP behavior for this policy is to link libraries by full path even
 if they are in implicit link directories.
 .sp
 This policy was introduced in CMake version 3.3.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn by default when this policy
+CMake version 3.16.6 does \fInot\fP warn by default when this policy
 is not set and simply uses \fBOLD\fP behavior.  See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0060\fP
 variable to control the warning.
@@ -1536,7 +1637,7 @@ so far to the \fBadd_definitions()\fP command.  The \fBNEW\fP behavior is
 to behave as a normal user\-defined directory property.
 .sp
 This policy was introduced in CMake version 3.3.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -1659,7 +1760,7 @@ behavior for this policy is to not generate these and instead
 require projects to specify custom command \fBBYPRODUCTS\fP explicitly.
 .sp
 This policy was introduced in CMake version 3.3.
-CMake version 3.15.0\-rc1 warns when it sees unknown dependencies in
+CMake version 3.16.6 warns when it sees unknown dependencies in
 out\-of\-source build trees if the policy is not set and then uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 the policy to \fBOLD\fP or \fBNEW\fP explicitly.  The policy setting
@@ -1684,7 +1785,7 @@ The \fBOLD\fP behavior for this policy is to ignore the IN_LIST operator.
 The \fBNEW\fP behavior is to interpret the IN_LIST operator.
 .sp
 This policy was introduced in CMake version 3.3.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -1724,7 +1825,7 @@ set it on the command line by defining the
 variable in the cache.
 .sp
 This policy was introduced in CMake version 3.2.  Unlike most policies,
-CMake version 3.15.0\-rc1 does \fInot\fP warn by default when this policy
+CMake version 3.16.6 does \fInot\fP warn by default when this policy
 is not set and simply uses \fBOLD\fP behavior.  See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0056\fP
 variable to control the warning.
@@ -1750,7 +1851,7 @@ outside of loop contexts and ignores any arguments.  The \fBNEW\fP behavior for 
 policy is to issue an error if a misplaced break or any arguments are found.
 .sp
 This policy was introduced in CMake version 3.2.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -1833,7 +1934,7 @@ if("E" STREQUAL "")
 .UNINDENT
 .sp
 This policy was introduced in CMake version 3.1.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -1897,7 +1998,7 @@ variable references and escape sequences.  The \fBNEW\fP behavior is to
 use the simpler variable expansion and escape sequence evaluation rules.
 .sp
 This policy was introduced in CMake version 3.1.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -1930,7 +2031,7 @@ directory.  The \fBNEW\fP behavior for this
 policy is to issue an error if such a directory is used.
 .sp
 This policy was introduced in CMake version 3.1.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it
 to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -1962,7 +2063,7 @@ behavior for this policy is to include \fBTARGET_OBJECTS\fP expressions
 in the output.
 .sp
 This policy was introduced in CMake version 3.1.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it
 to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -1989,7 +2090,7 @@ The \fBOLD\fP behavior for this policy is to allow the use of
 policy is to issue an error if such a signature is used.
 .sp
 This policy was introduced in CMake version 3.0.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2026,7 +2127,7 @@ the target sources.  The \fBNEW\fP behavior for this policy is to issue an error
 if such variables need to be expanded.
 .sp
 This policy was introduced in CMake version 3.0.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -2056,7 +2157,7 @@ The \fBNEW\fP behavior for this policy is to set \fBVERSION\fP as documented by 
 \fBproject()\fP command.
 .sp
 This policy was introduced in CMake version 3.0.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set
 it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -2090,7 +2191,7 @@ is to use the \fBQCC\fP compiler id for those drivers.
 .sp
 This policy was introduced in CMake version 3.0.  Use the
 \fBcmake_policy()\fP command to set this policy to \fBOLD\fP or \fBNEW\fP
-explicitly.  Unlike most policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+explicitly.  Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
 by default when this policy is not set and simply uses \fBOLD\fP behavior.
 See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0047\fP
@@ -2117,7 +2218,7 @@ if non\-existent dependencies are listed in the \fBadd_dependencies()\fP
 command.
 .sp
 This policy was introduced in CMake version 3.0.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it
 to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
@@ -2143,7 +2244,7 @@ for this policy is to issue a \fBFATAL_ERROR\fP if the command is called with a
 non\-existent target.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2170,7 +2271,7 @@ for this policy is to perform a case\-sensitive comparison with the value in
 the \fB<LANG>_COMPILER_ID\fP expression.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2229,7 +2330,7 @@ compilation command. The \fBNEW\fP behavior for this policy is to ignore the con
 of the \fBCOMPILE_DEFINITIONS_<CONFIG>\fP target property .
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2256,7 +2357,7 @@ the \fBINSTALL_NAME_DIR\fP and \fBCMAKE_INSTALL_NAME_DIR\fP
 variables.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2289,7 +2390,7 @@ an error if a generator expression appears in another location and the path is
 relative.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2315,7 +2416,7 @@ an error if the target referenced in \fBadd_custom_command()\fP is
 unknown or was defined outside the current directory.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.
 Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2341,7 +2442,7 @@ report an error if an attempt is made to set the link libraries of a
 utility target.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2365,7 +2466,7 @@ in their own link implementation.  The \fBNEW\fP behavior for this policy is to
 report an error if a target attempts to link to itself.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2405,7 +2506,7 @@ The \fBNEW\fP behavior for this policy is to report an error
 if an add_* command is used with an invalid target name.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2431,7 +2532,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2456,7 +2557,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2482,7 +2583,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2511,7 +2612,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2539,7 +2640,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2567,7 +2668,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2593,7 +2694,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2618,7 +2719,7 @@ The \fBNEW\fP behavior for this policy is to issue a \fBFATAL_ERROR\fP when the
 command is called.
 .sp
 This policy was introduced in CMake version 3.0\&.
-CMake version 3.15.0\-rc1 warns when the policy is not set and uses
+CMake version 3.16.6 warns when the policy is not set and uses
 \fBOLD\fP behavior.  Use the \fBcmake_policy()\fP command to set it to \fBOLD\fP or
 \fBNEW\fP explicitly.
 .sp
@@ -2650,7 +2751,7 @@ for this policy is to issue a \fBFATAL_ERROR\fP if a link dependency contains
 double\-colons but is not an \fBIMPORTED\fP target or an \fBALIAS\fP target.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2683,7 +2784,7 @@ the \fBINTERFACE_INCLUDE_DIRECTORIES\fP of a generator\-expression
 conditionally linked \fBIMPORTED\fP target does not exist.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2718,7 +2819,7 @@ properties from build\-targets.  The \fBNEW\fP behavior for this policy is to
 not to allow reading the \fBLOCATION\fP properties from build\-targets.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2750,7 +2851,7 @@ The \fBOLD\fP behavior for this policy is to use compiler id \fBClang\fP\&.  The
 .sp
 This policy was introduced in CMake version 3.0.  Use the
 \fBcmake_policy()\fP command to set this policy to \fBOLD\fP or \fBNEW\fP
-explicitly.  Unlike most policies, CMake version 3.15.0\-rc1 does \fInot\fP warn
+explicitly.  Unlike most policies, CMake version 3.16.6 does \fInot\fP warn
 by default when this policy is not set and simply uses \fBOLD\fP behavior.
 See documentation of the
 \fBCMAKE_POLICY_WARNING_CMP0025\fP
@@ -2783,7 +2884,7 @@ an \fBexport()\fP command.  The \fBNEW\fP behavior for this policy is not to
 allow including the result of an \fBexport()\fP command.
 .sp
 This policy was introduced in CMake version 3.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -2832,7 +2933,7 @@ this policy is to not to allow mixing of the keyword and plain
 signatures.
 .sp
 This policy was introduced in CMake version 2.8.12.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2877,7 +2978,7 @@ property for in\-build targets, and ignore the old properties matching
 \fB(IMPORTED_)?LINK_INTERFACE_LIBRARIES(_<CONFIG>)?\fP\&.
 .sp
 This policy was introduced in CMake version 2.8.12.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2904,7 +3005,7 @@ policy is to issue a \fBFATAL_ERROR\fP if \fBINCLUDE_DIRECTORIES\fP contains a
 relative path.
 .sp
 This policy was introduced in CMake version 2.8.12.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2937,7 +3038,7 @@ The \fBNEW\fP behavior for this policy is to link executables to \fBqtmain.lib\f
 automatically when they link to QtCore \fBIMPORTED\fP target.
 .sp
 This policy was introduced in CMake version 2.8.11.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -2965,7 +3066,7 @@ strict compatibility.  The \fBNEW\fP behavior for this policy is to leave
 the values untouched.
 .sp
 This policy was introduced in CMake version 2.8.11.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3005,7 +3106,7 @@ The \fBNEW\fP behavior for this policy is to ignore
 honor the \fBPOSITION_INDEPENDENT_CODE\fP target property.
 .sp
 This policy was introduced in CMake version 2.8.9.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP
 explicitly.
 .sp
@@ -3033,7 +3134,7 @@ behavior is to always prefer files from CMAKE_MODULE_PATH over files
 from the CMake modules directory.
 .sp
 This policy was introduced in CMake version 2.8.4.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3055,7 +3156,7 @@ wasn’t a valid target.  In CMake 2.8.3 and above it reports an error
 in this case.
 .sp
 This policy was introduced in CMake version 2.8.3.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3083,7 +3184,7 @@ this policy is to use relative paths verbatim in the linker command.  The
 paths by appending the relative path to \fBCMAKE_CURRENT_SOURCE_DIR\fP\&.
 .sp
 This policy was introduced in CMake version 2.8.1.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3106,7 +3207,7 @@ The \fBOLD\fP behavior for this policy is to silently ignore the problem.
 The \fBNEW\fP behavior for this policy is to report an error.
 .sp
 This policy was introduced in CMake version 2.8.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3133,7 +3234,7 @@ behavior for this policy is to disallow duplicate binary directories
 with an error.
 .sp
 This policy was introduced in CMake version 2.8.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3167,7 +3268,7 @@ for this policy is to recognize numbers and boolean constants without
 dereferencing variables with such names.
 .sp
 This policy was introduced in CMake version 2.8.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3199,7 +3300,7 @@ The \fBNEW\fP behavior for this policy is to allow the commands to do
 their default cmake_policy \fBPUSH\fP and \fBPOP\fP\&.
 .sp
 This policy was introduced in CMake version 2.6.3.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3225,7 +3326,7 @@ If \fBCMP0053\fP is set to \fBNEW\fP, this policy has no effect
 and is treated as always being \fBNEW\fP\&.
 .sp
 This policy was introduced in CMake version 2.6.3.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3252,7 +3353,7 @@ to follow the symlinks by default, but only if \fBFOLLOW_SYMLINKS\fP is given
 as an additional argument to the \fBFILE\fP command.
 .sp
 This policy was introduced in CMake version 2.6.2.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3299,7 +3400,7 @@ it.  The \fBNEW\fP behavior for this policy is to trust the given path and
 pass it directly to the native build tool unchanged.
 .sp
 This policy was introduced in CMake version 2.6.1.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3322,7 +3423,7 @@ elements.  The \fBNEW\fP behavior for this policy is to correctly count
 empty elements in a list.
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3352,7 +3453,7 @@ behavior for this policy is to produce an error if a bundle target is installed
 without a \fBBUNDLE DESTINATION\fP\&.
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3384,7 +3485,7 @@ See documentation of the \fBCOMPILE_DEFINITIONS\fP target property for
 limitations of the escaping implementation.
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3422,7 +3523,7 @@ target is created by an \fBadd_executable()\fP or \fBadd_library()\fP
 command.
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3586,7 +3687,7 @@ target.  This avoids flooding users with messages for every target
 when setting the policy once will probably fix all targets.
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3626,7 +3727,7 @@ must simply have globally unique names (unless one uses the global
 property \fBALLOW_DUPLICATE_CUSTOM_TARGETS\fP with a Makefiles generator).
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
@@ -3653,7 +3754,7 @@ and the \fBcmake_policy()\fP command.  However, CMake must still check
 below.
 .sp
 This policy was introduced in CMake version 2.6.0.  CMake version
-3.15.0\-rc1 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
+3.16.6 warns when the policy is not set and uses \fBOLD\fP behavior.  Use
 the \fBcmake_policy()\fP command to set it to \fBOLD\fP or \fBNEW\fP explicitly.
 .sp
 \fBNOTE:\fP
